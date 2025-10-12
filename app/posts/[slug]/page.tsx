@@ -12,6 +12,10 @@ import { getAllPosts, getPostAndMorePosts } from "@/lib/api";
 export async function generateStaticParams() {
   const allPosts = await getAllPosts(false);
 
+  if (!allPosts || allPosts.length === 0) {
+    return [];
+  }
+
   return allPosts.map((post) => ({
     slug: post.slug,
   }));
@@ -20,10 +24,11 @@ export async function generateStaticParams() {
 export default async function PostPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  const { isEnabled } = draftMode();
-  const { post, morePosts } = await getPostAndMorePosts(params.slug, isEnabled);
+  const { slug } = await params;
+  const { isEnabled } = await draftMode();
+  const { post, morePosts } = await getPostAndMorePosts(slug, isEnabled);
 
   return (
     <div className="container mx-auto px-5">
