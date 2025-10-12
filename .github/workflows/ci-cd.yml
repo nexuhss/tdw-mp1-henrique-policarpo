@@ -16,10 +16,15 @@ on:
   repository_dispatch:
     types: [contentful-update]
 
+  # ⚠️ ATENÇÃO: DESLIGAR DEPOIS DE VALIDAR! ⚠️
   # Executa às 00:00 de todos os dias da semana (segunda a sexta)
-  # ATENÇÃO: Desligar depois de validar!
+  # Aguardar próxima segunda-feira às 00:00 UTC para validar que funciona
+  # DEPOIS: Remover toda a secção "schedule" para economizar minutos do GitHub Actions
+  # ════════════════════════════════════════════════════════════════════════
   schedule:
     - cron: "0 0 * * 1-5" # 00:00 UTC, segunda a sexta-feira
+  # ════════════════════════════════════════════════════════════════════════
+  # TODO: APAGAR AS LINHAS 20-26 APÓS VALIDAR O TRIGGER SCHEDULE
 
   # Permite execução manual
   workflow_dispatch:
