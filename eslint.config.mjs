@@ -11,6 +11,7 @@ export default [
       "*.config.js",
       "*.config.ts",
       "*.config.mjs",
+      "next-env.d.ts", // Next.js generated file
     ],
   },
   js.configs.recommended,
