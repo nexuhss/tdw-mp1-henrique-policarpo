@@ -54,7 +54,7 @@ tests:
       junit: coverage/junit.xml
 
 # ========================================
-# STAGE 2: BUILD (depende do validate)
+# STAGE 2: BUILD (depende do validate) TESTE
 # ========================================
 
 build:
