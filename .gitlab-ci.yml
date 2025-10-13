@@ -1,0 +1,108 @@
+# GitLab CI/CD Pipeline
+# Replicação da pipeline GitHub Actions para GitLab
+
+# Variáveis globais
+variables:
+  NODE_VERSION: "20"
+
+# Stages (etapas em sequência)
+stages:
+  - validate # Validação de qualidade (paralelo)
+  - build # Construção do projeto
+  - deploy # Deploy (apenas master)
+
+# Cache global para node_modules
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - node_modules/
+
+# Template para jobs Node.js
+.node_template: &node_template
+  image: node:${NODE_VERSION}
+  before_script:
+    - npm ci
+
+# ========================================
+# STAGE 1: VALIDATE (jobs em paralelo)
+# ========================================
+
+prettier-check:
+  <<: *node_template
+  stage: validate
+  script:
+    - npx prettier --check .
+
+eslint-check:
+  <<: *node_template
+  stage: validate
+  script:
+    - npx eslint .
+  allow_failure: true # Permite warnings sem falhar
+
+tests:
+  <<: *node_template
+  stage: validate
+  script:
+    - npm test
+  artifacts:
+    when: always
+    paths:
+      - coverage/
+    expire_in: 30 days
+    reports:
+      junit: coverage/junit.xml
+
+# ========================================
+# STAGE 2: BUILD (depende do validate) TESTE
+# ========================================
+
+build:
+  <<: *node_template
+  stage: build
+  script:
+    - echo "Debug - Space ID is $CONTENTFUL_SPACE_ID"
+    - echo "Debug - Access Token length is $(echo $CONTENTFUL_ACCESS_TOKEN | wc -c)"
+    - npm run build
+  artifacts:
+    paths:
+      - .next/
+    expire_in: 1 hour
+  only:
+    - branches
+
+# ========================================
+# STAGE 3: DEPLOY (apenas master)
+# ========================================
+
+deploy:
+  <<: *node_template
+  stage: deploy
+  script:
+    - npm install -g netlify-cli
+    - netlify deploy --prod --dir=.next --message="Deploy from GitLab CI - $CI_COMMIT_SHA"
+  environment:
+    name: production
+    url: https://tdw-mp1-henrique-policarpo.netlify.app
+  only:
+    - master # Apenas na branch default
+  when: on_success # Apenas se build passou
+
+# ========================================
+# NOTAS SOBRE TRIGGERS
+# ========================================
+
+# Este ficheiro .gitlab-ci.yml configura os seguintes triggers:
+#
+# 1. COMMITS: Automático em qualquer push (configurado por padrão)
+#
+# 2. WEBHOOK DO CONTENTFUL:
+#    - Configure em GitLab: Settings > Webhooks
+#    - URL: https://gitlab.com/api/v4/projects/PROJECT_ID/trigger/pipeline
+#    - Token: Criar em Settings > CI/CD > Pipeline triggers
+#
+# 3. SCHEDULE (00:00 dias da semana):
+#    - Configure em GitLab: CI/CD > Schedules > New schedule
+#    - Interval pattern: 0 0 * * 1-5
+#    - Target branch: master
+#    - ATENÇÃO: Desligar depois de validar!
