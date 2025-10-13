@@ -21,8 +21,8 @@ on:
   # Aguardar próxima segunda-feira às 00:00 UTC para validar que funciona
   # DEPOIS: Remover toda a secção "schedule" para economizar minutos do GitHub Actions
   # ════════════════════════════════════════════════════════════════════════
-  schedule:
-    - cron: "0 0 * * 1-5" # 00:00 UTC, segunda a sexta-feira
+  # schedule:
+  #  - cron: "0 0 * * 1-5" # 00:00 UTC, segunda a sexta-feira
   # ════════════════════════════════════════════════════════════════════════
   # TODO: APAGAR AS LINHAS 20-26 APÓS VALIDAR O TRIGGER SCHEDULE
 
