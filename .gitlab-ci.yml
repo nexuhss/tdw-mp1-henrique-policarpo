@@ -64,11 +64,6 @@ build:
     - echo "Debug - Space ID is $CONTENTFUL_SPACE_ID"
     - echo "Debug - Access Token length is $(echo $CONTENTFUL_ACCESS_TOKEN | wc -c)"
     - npm run build
-  variables:
-    CONTENTFUL_SPACE_ID: $CONTENTFUL_SPACE_ID
-    CONTENTFUL_ACCESS_TOKEN: $CONTENTFUL_ACCESS_TOKEN
-    CONTENTFUL_PREVIEW_ACCESS_TOKEN: $CONTENTFUL_PREVIEW_ACCESS_TOKEN
-    CONTENTFUL_REVALIDATE_SECRET: $CONTENTFUL_REVALIDATE_SECRET
   artifacts:
     paths:
       - .next/
