@@ -61,8 +61,8 @@ build:
   <<: *node_template
   stage: build
   script:
-    - echo "Debug: Space ID is $CONTENTFUL_SPACE_ID"
-    - echo "Debug: Access Token starts with ${CONTENTFUL_ACCESS_TOKEN:0:5}"
+    - echo "Debug - Space ID is $CONTENTFUL_SPACE_ID"
+    - echo "Debug - Access Token length is $(echo $CONTENTFUL_ACCESS_TOKEN | wc -c)"
     - npm run build
   variables:
     CONTENTFUL_SPACE_ID: $CONTENTFUL_SPACE_ID
