@@ -176,4 +176,96 @@ describe("Contentful API Integration", () => {
       );
     });
   });
+
+  describe("Image URL Validation", () => {
+    it("should return valid image URLs in posts", async () => {
+      const mockResponse = {
+        data: {
+          postCollection: {
+            items: [
+              {
+                slug: "test-post",
+                title: "Test Post",
+                coverImage: {
+                  url: "https://images.ctfassets.net/space/image.jpg",
+                },
+              },
+            ],
+          },
+        },
+      };
+
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        json: async () => mockResponse,
+      });
+
+      const posts = await getAllPosts(false);
+
+      expect(posts[0].coverImage).toBeDefined();
+      expect(posts[0].coverImage.url).toMatch(/^https:\/\//);
+      expect(posts[0].coverImage.url).toContain("ctfassets.net");
+    });
+
+    it("should return image URLs compatible with WebP conversion", async () => {
+      const mockResponse = {
+        data: {
+          postCollection: {
+            items: [
+              {
+                slug: "test-post",
+                title: "Test Post",
+                coverImage: {
+                  url: "https://images.ctfassets.net/space/image.jpg",
+                },
+              },
+            ],
+          },
+        },
+      };
+
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        json: async () => mockResponse,
+      });
+
+      const posts = await getAllPosts(false);
+      const imageUrl = posts[0].coverImage.url;
+
+      // Verify URL can accept query parameters (for WebP conversion)
+      const urlObj = new URL(imageUrl);
+      expect(urlObj.protocol).toBe("https:");
+      expect(urlObj.hostname).toContain("ctfassets.net");
+    });
+
+    it("should handle posts with author avatars", async () => {
+      const mockResponse = {
+        data: {
+          postCollection: {
+            items: [
+              {
+                slug: "test-post",
+                title: "Test Post",
+                author: {
+                  name: "Test Author",
+                  picture: {
+                    url: "https://images.ctfassets.net/space/avatar.jpg",
+                  },
+                },
+              },
+            ],
+          },
+        },
+      };
+
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        json: async () => mockResponse,
+      });
+
+      const posts = await getAllPosts(false);
+
+      expect(posts[0].author).toBeDefined();
+      expect(posts[0].author.picture).toBeDefined();
+      expect(posts[0].author.picture.url).toMatch(/^https:\/\//);
+      expect(posts[0].author.picture.url).toContain("ctfassets.net");
+    });
+  });
 });
