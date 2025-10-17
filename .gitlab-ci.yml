@@ -82,6 +82,44 @@ deploy:
   script:
     - npm install -g netlify-cli
     - netlify deploy --prod --dir=.next --message="Deploy from GitLab CI - $CI_COMMIT_SHA"
+  after_script:
+    - |
+      if [ "$CI_JOB_STATUS" == "success" ]; then
+        curl -H "Content-Type: application/json" \
+          -d '{
+            "embeds": [{
+              "title": "✅ GitLab Deploy Successful",
+              "description": "Website deployed to production from GitLab",
+              "color": 3066993,
+              "fields": [
+                {"name": "Project", "value": "'"$CI_PROJECT_PATH"'", "inline": true},
+                {"name": "Branch", "value": "'"$CI_COMMIT_REF_NAME"'", "inline": true},
+                {"name": "Commit", "value": "`'"${CI_COMMIT_SHA:0:8}"'`", "inline": false},
+                {"name": "Author", "value": "'"$CI_COMMIT_AUTHOR"'", "inline": true},
+                {"name": "Deploy URL", "value": "https://tdw-mp1-henrique-policarpo.netlify.app", "inline": false}
+              ],
+              "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%S.000Z)'"
+            }]
+          }' \
+          $DISCORD_WEBHOOK_URL
+      else
+        curl -H "Content-Type: application/json" \
+          -d '{
+            "embeds": [{
+              "title": "❌ GitLab Deploy Failed",
+              "description": "Deployment to production failed",
+              "color": 15158332,
+              "fields": [
+                {"name": "Project", "value": "'"$CI_PROJECT_PATH"'", "inline": true},
+                {"name": "Branch", "value": "'"$CI_COMMIT_REF_NAME"'", "inline": true},
+                {"name": "Commit", "value": "`'"${CI_COMMIT_SHA:0:8}"'`", "inline": false},
+                {"name": "Logs", "value": "[View Logs]('"$CI_JOB_URL"')", "inline": false}
+              ],
+              "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%S.000Z)'"
+            }]
+          }' \
+          $DISCORD_WEBHOOK_URL
+      fi
   environment:
     name: production
     url: https://tdw-mp1-henrique-policarpo.netlify.app
@@ -109,6 +147,42 @@ lighthouse:
     - npm ci
   script:
     - npm run lighthouse
+  after_script:
+    - |
+      if [ "$CI_JOB_STATUS" == "success" ]; then
+        curl -H "Content-Type: application/json" \
+          -d '{
+            "embeds": [{
+              "title": "🔍 GitLab Lighthouse Analysis Complete",
+              "description": "Performance analysis finished successfully",
+              "color": 3447003,
+              "fields": [
+                {"name": "Project", "value": "'"$CI_PROJECT_PATH"'", "inline": true},
+                {"name": "Branch", "value": "'"$CI_COMMIT_REF_NAME"'", "inline": true},
+                {"name": "Website", "value": "https://tdw-mp1-henrique-policarpo.netlify.app", "inline": false},
+                {"name": "Results", "value": "[View Artifacts]('"$CI_JOB_URL"'/artifacts/browse/.lighthouseci/)", "inline": false}
+              ],
+              "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%S.000Z)'"
+            }]
+          }' \
+          $DISCORD_WEBHOOK_URL
+      else
+        curl -H "Content-Type: application/json" \
+          -d '{
+            "embeds": [{
+              "title": "⚠️ GitLab Lighthouse Failed",
+              "description": "Performance analysis did not meet thresholds",
+              "color": 15105570,
+              "fields": [
+                {"name": "Project", "value": "'"$CI_PROJECT_PATH"'", "inline": true},
+                {"name": "Branch", "value": "'"$CI_COMMIT_REF_NAME"'", "inline": true},
+                {"name": "Logs", "value": "[View Logs]('"$CI_JOB_URL"')", "inline": false}
+              ],
+              "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%S.000Z)'"
+            }]
+          }' \
+          $DISCORD_WEBHOOK_URL
+      fi
   artifacts:
     when: always
     paths:
