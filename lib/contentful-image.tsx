@@ -23,9 +23,6 @@ const contentfulLoader = ({ src, width, quality }: ContentfulImageProps) => {
   // Convert to WebP format (modern, smaller file size)
   params.set("fm", "webp");
 
-  // Progressive JPEG loading
-  params.set("fl", "progressive");
-
   return `${url.origin}${url.pathname}?${params.toString()}`;
 };
 
@@ -35,8 +32,6 @@ export default function ContentfulImage(props: ContentfulImageProps) {
       alt={props.alt}
       loader={contentfulLoader}
       loading="lazy"
-      placeholder="blur"
-      blurDataURL={`${props.src}?w=10&q=10&fm=webp`}
       {...props}
     />
   );
