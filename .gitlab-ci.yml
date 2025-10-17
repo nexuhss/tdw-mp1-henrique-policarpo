@@ -10,6 +10,7 @@ stages:
   - validate # Validação de qualidade (paralelo)
   - build # Construção do projeto
   - deploy # Deploy (apenas master)
+  - performance # Lighthouse CI (após deploy)
 
 # Cache global para node_modules
 cache:
@@ -88,6 +89,23 @@ deploy:
     - master # Apenas na branch default
   when: on_success # Apenas se build passou
 
+# ========================================
+# STAGE 4: PERFORMANCE (Lighthouse CI)
+# ========================================
+
+lighthouse:
+  <<: *node_template
+  stage: performance
+  script:
+    - npm run lighthouse
+  artifacts:
+    when: always
+    paths:
+      - .lighthouseci/
+    expire_in: 30 days
+  only:
+    - master
+  when: on_success
 # ========================================
 # NOTAS SOBRE TRIGGERS
 # ========================================
