@@ -26,6 +26,8 @@ const contentfulLoader = ({ src, width, quality }: ContentfulImageProps) => {
   return `${url.origin}${url.pathname}?${params.toString()}`;
 };
 
+export { contentfulLoader };
+
 export default function ContentfulImage(props: ContentfulImageProps) {
   return (
     <Image
